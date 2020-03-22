@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  bank_code: MyString
+  agencia: MyString
+  agendia_dv: MyString
+  conta: MyString
+  conta_dv: MyString
+  legal_name: MyString
+  document_number: MyString
+  code: MyText
+  transfer_enabled: false
+
+two:
+  bank_code: MyString
+  agencia: MyString
+  agendia_dv: MyString
+  conta: MyString
+  conta_dv: MyString
+  legal_name: MyString
+  document_number: MyString
+  code: MyText
+  transfer_enabled: false

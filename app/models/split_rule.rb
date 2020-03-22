@@ -1,0 +1,2 @@
+class SplitRule < ApplicationRecord
+end
