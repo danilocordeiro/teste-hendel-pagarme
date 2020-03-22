@@ -1,17 +1,114 @@
+<div class="col-md-4 col-md-offset-4">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Transação</h3>
+        </div>
+    <div class="panel-body">
+    
+        <%= form_for(transaction) do |f| %>
+          <% if transaction.errors.any? %>
+            <div id="error_explanation">
+              <h2><%= pluralize(transaction.errors.count, "error") %> prohibited this transaction from being saved:</h2>
 
-<%= simple_form_for(@transaction) do |f| %>
-  <%= f.error_notification %>
-  <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+              <ul>
+              <% transaction.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+              </ul>
+            </div>
+          <% end %>
 
-  <div class="form-inputs">
-    <%= f.input :amount %>
-    <%= f.input :pay_method %>
-    <%= f.input :card_hash %>
-    <%= f.input :division %>
-    <%= f.input :status %>
-  </div>
+          <div class="form-group">
+            <%= f.label :amount %>
+            <%= f.number_field :amount, required: true, class:"form-control", placeholder:"Quantidade (Em Centavos)" %>
+          </div>
 
-  <div class="form-actions">
-    <%= f.button :submit %>
-  </div>
-<% end %>
+          <div class="form-group">
+            <label for="boleto">Boleto</label>
+            <%= f.radio_button(:pay_method, "boleto") %>
+            <label for="credit_card">Cartão de Crédito</label>
+            <%= f.radio_button(:pay_method, "credit_card") %>
+          </div>
+          
+          <div class="form_group">
+              <%= f.check_box :division %>
+              <%= f.label :division %>
+          </div>
+
+          
+          <div id="creditCard_form" class="creditCard_form form-group">
+            Número do cartão: 
+            <input type="text" id="card_number" maxlength="19" class="form-control" placeholder="Número do Cartão"/>
+            <br/>
+            Nome (como escrito no cartão): 
+            <input type="text" id="card_holder_name"  maxlength="60" class="form-control" placeholder="Nome(Igual no cartão)"/>
+            <br/>
+            Mês de expiração: 
+            <input type="text" id="card_expiration_month"  maxlength="2" class="form-control" placeholder="Mês de expiração"/>
+            <br/>
+            Ano de expiração: 
+            <input type="text" id="card_expiration_year" maxlength="2" class="form-control" placeholder="Ano de expiração"/>
+            <br/>
+            Código de segurança: 
+            <input type="text" id="card_cvv" maxlength="3" class="form-control" placeholder="Código de Segurança"/>
+            <br/>
+                
+            <div id="field_errors">
+            </div>
+            <br/>
+        </div>
+
+            <div class="actions">
+              <%= f.submit class:"btn btn-lg btn-success btn-block"%>
+                <%= link_to home_index_path do %>
+                    <button class="btn btn-lg btn-danger btn-block">Cancelar</button>
+                <% end %>
+            </div>
+        <% end %>
+    </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() { // quando o jQuery estiver carregado...
+    var form = $("#new_transaction")
+    console.log()
+    form.submit(function(event) {
+        event.preventDefault();
+        var card = {} 
+        card.card_holder_name = $("#creditCard_form #card_holder_name").val()
+        card.card_expiration_date = $("#creditCard_form #card_expiration_month").val() + '/' + $("#new_transaction #card_expiration_year").val()
+        card.card_number = $("#creditCard_form #card_number").val()
+        card.card_cvv = $("#creditCard_form #card_cvv").val()
+
+
+        // pega os erros de validação nos campos do form e a bandeira do cartão
+        var cardValidations = pagarme.validate({card: card})
+        
+         //Verifica se há erros
+            var hasErrors = false;
+            for(var field in cardValidations) { hasErrors = true; break; }
+        //Então você pode verificar se algum campo não é válido
+        //if(!cardValidations.card.card_number)
+        //  console.log('Oops, número de cartão incorreto')
+        //  if(hasErrors) {
+                // realiza o tratamento de errors
+        //        console.log(cardValidations);
+                
+        //    } else {
+        //Mas caso esteja tudo certo, você pode seguir o fluxo
+        pagarme.client.connect({ encryption_key: 'ek_test_EjLrqWBzyFQW3tHjlBnZpQJRgcvjxe' })
+          .then(client => client.security.encrypt(card))
+          .then(card_hash =>  {console.log(card_hash);
+            form.append($('<input type="text" name="transaction[card_hash]" id="transaction_card_hash">').val(card_hash));
+                    // e envia o form
+                    form.get(0).submit();}
+          )
+          // o próximo passo aqui é enviar o card_hash para seu servidor, e
+          // em seguida criar a transação/assinatura
+        //}
+        return false
+    })
+    
+});
+</script>

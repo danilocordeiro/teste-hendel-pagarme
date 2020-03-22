@@ -4,7 +4,12 @@ class InformationController < ApplicationController
   # GET /information
   # GET /information.json
   def index
-    @information = Information.all
+    if defined?(current_member.information) && current_member.information !=''
+      redirect_to edit_information_path(current_member.information)
+    else
+      redirect_to new_information_path
+    end
+    
   end
 
   # GET /information/1
@@ -14,7 +19,11 @@ class InformationController < ApplicationController
 
   # GET /information/new
   def new
-    @information = Information.new
+    if defined?(current_member.information) && current_member.information != nil
+      redirect_to edit_information_path(current_member.information)
+    else
+      @information = Information.new
+    end
   end
 
   # GET /information/1/edit
@@ -25,6 +34,7 @@ class InformationController < ApplicationController
   # POST /information.json
   def create
     @information = Information.new(information_params)
+    @information.member = current_member
 
     respond_to do |format|
       if @information.save

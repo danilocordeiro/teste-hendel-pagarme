@@ -26,6 +26,23 @@ class RecipientsController < ApplicationController
   def create
     @recipient = Recipient.new(recipient_params)
 
+    recipe = PagarMe::Recipient.new(
+    bank_account: {
+      bank_code: @recipient.bank_code,
+      agencia: @recipient.agencia,
+      agencia_dv: @recipient.agencia_dv,
+      conta: @recipient.conta,
+      conta_dv: @recipient.conta_dv,
+      legal_name:  @recipient.legal_name,
+      document_number: @recipient.document_number,
+    },
+    transfer_enabled: true
+    )
+
+    recipe.create
+
+    @recipient.code = recipe.id
+
     respond_to do |format|
       if @recipient.save
         format.html { redirect_to @recipient, notice: 'Recipient was successfully created.' }
